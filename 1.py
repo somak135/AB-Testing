@@ -44,8 +44,8 @@ def reqd_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon,
         control_conversions += np.random.binomial(n = 20, p = control_cr, size = 1)
         treatment_conversions += np.random.binomial(n = 20, p = treatment_cr, size = 1)
         
-        control_posterior_simulation = np.random.beta(prior_alpha + control_conversions, prior_beta + sample_size - control_conversions, size=1000)
-        treatment_posterior_simulation = np.random.beta(prior_alpha + treatment_conversions, prior_beta + sample_size - treatment_conversions, size=1000)
+        control_posterior_simulation = np.random.beta(prior_alpha + control_conversions, prior_beta + sample_size - control_conversions, size=5000)
+        treatment_posterior_simulation = np.random.beta(prior_alpha + treatment_conversions, prior_beta + sample_size - treatment_conversions, size=5000)
         treatment_won = (treatment_posterior_simulation >= control_posterior_simulation).astype(int)
         
         expected_loss_control, expected_loss_treatment = calculate_expected_loss(control_posterior_simulation, treatment_posterior_simulation, treatment_won)
@@ -68,7 +68,7 @@ def calculate_reqd_samplesize_distbn(n, prior_alpha, prior_beta, control_cr, tre
     inputs = range(1, n)
     
     processed_list = []
-    processed_list = Parallel(n_jobs=num_cores)(delayed(reqd_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon) for i in inputs)
+    processed_list = Parallel(n_jobs=num_cores)(delayed(reqd_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon, min_simulation_per_experiment, sample_size_bound) for i in inputs)
         
     return np.quantile(processed_list, power_list, axis = 0)
 
@@ -76,4 +76,4 @@ def calculate_reqd_samplesize_distbn(n, prior_alpha, prior_beta, control_cr, tre
 
 
 
-
+print(calculate_reqd_samplesize_distbn(1000, 1, 1, 0.3, 0.35, 0.001, [0.8, 0.85, 0.9, 0.95, 0.98], 200, 1530))

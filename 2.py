@@ -126,4 +126,4 @@ def simulation_study(N, sample_size, control_cr, treatment_cr, epsilon, level_of
           ''')
 
 
-
+print(simulation_study(10000, 1120, 0.3, 0.35, 0.001, 0.05))
