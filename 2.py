@@ -74,9 +74,9 @@ def who_won_classical(control_data, treatment_data, level_of_significance):
     number_of_control_win = 0; number_of_treatment_win = 0
     
     t_stat, p_val = ss.ttest_ind(control_data, treatment_data)
-    if p_val <= level_of_significance:
+    if t_stat <= 0 and p_val <= level_of_significance:
         number_of_treatment_win += 1
-    else:
+    elif t_stat >= 0 and p_val <= level_of_significance:
         number_of_control_win += 1
         
     #returndict = {"control": number_of_control_win, "treatment": number_of_treatment_win}
@@ -126,4 +126,11 @@ def simulation_study(N, sample_size, control_cr, treatment_cr, epsilon, level_of
           ''')
 
 
-#print(simulation_study(10000, 1120, 0.3, 0.35, 0.001, 0.05))
+#print(simulation_study(10000, 6820, 0.2, 0.21, 0.0005, 0.05, 3000))
+#print(simulation_study(10000, 14060, 0.2, 0.21, 0.0005, 0.05, 7000))
+#print(simulation_study(10000, 10340, 0.2, 0.21, 0.0005, 0.05, 3000))
+#print(simulation_study(10000, 14060, 0.2, 0.21, 0.0005, 0.05, 3000))
+
+## Working rule : set the minimum required sample size to be 
+##                of half the sample size, to avoid "peeking".
+
