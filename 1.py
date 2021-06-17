@@ -53,9 +53,9 @@ def reqd_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon,
         if expected_loss_treatment <= epsilon:
             number_of_treatment_win += 1
             flag = 1
-        elif expected_loss_control <= epsilon:
-            number_of_control_win += 1
-            flag = 1
+        #elif expected_loss_control <= epsilon:
+         #   number_of_control_win += 1
+          #  flag = 1
         elif sample_size >= sample_size_bound:
             flag = 1
             
@@ -76,4 +76,4 @@ def calculate_reqd_samplesize_distbn(n, prior_alpha, prior_beta, control_cr, tre
 
 
 
-print(calculate_reqd_samplesize_distbn(1000, 1, 1, 0.3, 0.35, 0.001, [0.8, 0.85, 0.9, 0.95, 0.98], 200, 1530))
+print(calculate_reqd_samplesize_distbn(1000, 1, 1, 0.2, 0.21, 0.0005, [0.8, 0.85, 0.9, 0.95, 0.98], 500, 15000))
