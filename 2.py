@@ -49,8 +49,8 @@ def who_won_bayesian(control_data, treatment_data, prior_alpha, prior_beta, epsi
             control_conversions += sum(control_data[(consumed_sample_size - 20) : (consumed_sample_size)])
             treatment_conversions += sum(treatment_data[(consumed_sample_size - 20) : (consumed_sample_size)])
             
-            control_posterior_simulation = np.random.beta(prior_alpha + control_conversions, prior_beta + consumed_sample_size - control_conversions, size=1000)
-            treatment_posterior_simulation = np.random.beta(prior_alpha + treatment_conversions, prior_beta + consumed_sample_size - treatment_conversions, size=1000)
+            control_posterior_simulation = np.random.beta(prior_alpha + control_conversions, prior_beta + consumed_sample_size - control_conversions, size=5000)
+            treatment_posterior_simulation = np.random.beta(prior_alpha + treatment_conversions, prior_beta + consumed_sample_size - treatment_conversions, size=5000)
             treatment_won = (treatment_posterior_simulation >= control_posterior_simulation).astype(int)
             
             expected_loss_control, expected_loss_treatment = calculate_expected_loss(control_posterior_simulation, treatment_posterior_simulation, treatment_won)
@@ -126,10 +126,11 @@ def simulation_study(N, sample_size, control_cr, treatment_cr, epsilon, level_of
           ''')
 
 
-#print(simulation_study(10000, 6820, 0.2, 0.21, 0.0005, 0.05, 3000))
-#print(simulation_study(10000, 14060, 0.2, 0.21, 0.0005, 0.05, 7000))
-#print(simulation_study(10000, 10340, 0.2, 0.21, 0.0005, 0.05, 3000))
-#print(simulation_study(10000, 14060, 0.2, 0.21, 0.0005, 0.05, 3000))
+#print(simulation_study(20000, 14160, 0.2, 0.21, 0.0005, 0.05, 7000))
+#print(simulation_study(20000, 14160, 0.2, 0.205, 0.0005, 0.05, 7000))
+#print(simulation_study(10000, 14160, 0.2, 0.2, 0.0005, 0.05, 7000))
+#print(simulation_study(10000, 14060, 0.2, 0.195, 0.0005, 0.05, 7000))
+#print(simulation_study(10000, 14060, 0.2, 0.19, 0.0005, 0.05, 7000))
 
 ## Working rule : set the minimum required sample size to be 
 ##                of half the sample size, to avoid "peeking".
