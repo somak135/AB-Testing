@@ -96,6 +96,8 @@ def plot_posterior(control_data, treatment_data, prior_alpha, prior_beta):
     
 control_data = np.random.binomial(n = 1, p = 0.2, size = 14160)
 treatment_data = np.random.binomial(n = 1, p = 0.21, size = 14160)
+print(control_data.mean())
+print(treatment_data.mean())
 
 plot_loss(control_data, treatment_data, 1, 1, 0.0005, 0.05, 1000)
 plot_posterior(control_data, treatment_data, 1, 1)
