@@ -7,3 +7,7 @@
 `1.py` implements the numerical procedure of finding required sample size.
   
 `2.py` carries out simulation study to check the comparative performance of bayesian method and frequentist(aka classical) method.
+
+`3.py` plots the outcome of a single conducted test in bayesian method.
+
+`4.py` is a brief code for generating some plots for the slides.
