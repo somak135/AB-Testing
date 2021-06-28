@@ -16,7 +16,7 @@ sample_size_bayesian = [7580, 8840, 10700, 14420]
 plt.plot(power, sample_size_classical, 'o--', color = 'r', label = 'Classical')
 plt.plot(power, sample_size_bayesian, 'o--', color = 'g', label = 'Bayesian')
 plt.legend(loc = 'upper left')
-plt.title('Required sample size vs Power')
+plt.title('Required sample size vs Power : Illustrative chart')
 plt.xlabel('Power of test')
 plt.ylabel('Required sample size')
 plt.savefig('sample_size_comparison', dpi = 800)

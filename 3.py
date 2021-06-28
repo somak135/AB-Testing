@@ -65,8 +65,33 @@ def plot_loss(control_data, treatment_data, prior_alpha, prior_beta, epsilon, le
     plt.legend(loc = 'upper right')
     plt.xlabel('sample size')
     plt.ylabel('expected loss')
+    plt.title('Expected losses vs Sample size')
+    plt.text(11000, 0.001, 'eps = 0.0005')
     #plt.show()
     plt.savefig('plot11', dpi = 800)
+    
+def plot_final_loss(control_data, treatment_data, epsilon, prior_alpha = 1, prior_beta = 1, min_datasize = 0):
+    control_data = np.array(control_data)
+    treatment_data = np.array(treatment_data)
+    
+    control_conversions = sum(control_data)
+    treatment_conversions = sum(treatment_data)
+    consumed_sample_size = len(control_data)
+    
+    control_posterior_simulation = np.random.beta(prior_alpha + control_conversions, prior_beta + consumed_sample_size - control_conversions, size = 1000)
+    treatment_posterior_simulation = np.random.beta(prior_alpha + treatment_conversions, prior_beta + consumed_sample_size - treatment_conversions, size = 1000)
+    treatment_won = (treatment_posterior_simulation >= control_posterior_simulation).astype(int)
+    expected_loss_control, expected_loss_treatment = calculate_expected_loss(control_posterior_simulation, treatment_posterior_simulation, treatment_won)
+    
+    plt.plot(np.array([min_datasize, consumed_sample_size*2]), np.array([epsilon, epsilon]), color = 'b', linewidth = 1)
+    plt.plot(consumed_sample_size, expected_loss_control, 'o', color = 'r', label = 'control loss')
+    plt.plot(consumed_sample_size, expected_loss_treatment, 'o', color = 'g', label = 'treatment loss')
+    plt.legend(loc = 'upper right')
+    plt.xlabel('sample size')
+    plt.ylabel('expected losses')
+    
+    plt.savefig('plot13', dpi = 800)
+    
     
 
 def plot_posterior(control_data, treatment_data, prior_alpha, prior_beta):
@@ -94,13 +119,14 @@ def plot_posterior(control_data, treatment_data, prior_alpha, prior_beta):
     plt.savefig('plot12', dpi = 800)
     
     
-control_data = np.random.binomial(n = 1, p = 0.2, size = 14160)
-treatment_data = np.random.binomial(n = 1, p = 0.21, size = 14160)
-print(control_data.mean())
-print(treatment_data.mean())
+control_data = np.random.binomial(n = 1, p = 0.2, size = 14420)
+treatment_data = np.random.binomial(n = 1, p = 0.21, size = 14420)
+#print(control_data.mean())
+#print(treatment_data.mean())
 
-plot_loss(control_data, treatment_data, 1, 1, 0.0005, 0.05, 1000)
-plot_posterior(control_data, treatment_data, 1, 1)
+#plot_loss(control_data, treatment_data, 1, 1, 0.0005, 0.05, 1000)
+plot_final_loss(control_data[0:1000], treatment_data[0:1000], epsilon = 0.0005, min_datasize=0)
+#plot_posterior(control_data, treatment_data, 1, 1)
          
             
             

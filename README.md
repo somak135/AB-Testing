@@ -23,6 +23,8 @@ But, the main question is: Is it sensible to have same loss for two scenarios li
 
 Also, why is it even considered a loss when $p_c = p_t$ and we end up rejecting null. Either way, we leave with same conversion rate we were already having and incur no loss.
 
+$$N = \left[ \sqrt{2 \bar{p}\bar{q}} z_{1-\alpha/2} + \sqrt{p q + p' q'} z_{\beta} \right]^2 \bigg/ \delta^2$$
+
 
 ### Bayesian Method
 
