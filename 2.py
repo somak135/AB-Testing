@@ -133,5 +133,5 @@ def simulation_study(N, sample_size, control_cr, treatment_cr, epsilon, level_of
 #print(simulation_study(10000, 14060, 0.2, 0.19, 0.0005, 0.05, 7000))
 
 ## Working rule : set the minimum required sample size to be 
-##                of half the sample size, to avoid "peeking".
+##                half of the sample size, to avoid "peeking".
 
