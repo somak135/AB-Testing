@@ -1,4 +1,4 @@
-# june-2020
+# june-2021
 
 ## Confounder Logistic Model
 `confounder.R` implements this. //needs to be updated yet
