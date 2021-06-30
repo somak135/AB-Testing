@@ -21,3 +21,6 @@ plt.xlabel('Power of test')
 plt.ylabel('Required sample size')
 plt.savefig('sample_size_comparison', dpi = 800)
 plt.close()
+
+
+
