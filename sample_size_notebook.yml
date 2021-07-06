@@ -80,6 +80,7 @@ dependencies:
   - pandas=1.2.5=py38h295c915_0
   - pandocfilters=1.4.3=py38h06a4308_1
   - parso=0.8.2=pyhd3eb1b0_0
+  - patsy=0.5.1=py38_0
   - pcre=8.45=h295c915_0
   - pexpect=4.8.0=pyhd3eb1b0_3
   - pickleshare=0.7.5=pyhd3eb1b0_1003
@@ -106,6 +107,7 @@ dependencies:
   - sip=4.19.13=py38he6710b0_0
   - six=1.16.0=pyhd3eb1b0_0
   - sqlite=3.36.0=hc218d9a_0
+  - statsmodels=0.12.2=py38h27cfd23_0
   - terminado=0.9.4=py38h06a4308_0
   - testpath=0.5.0=pyhd3eb1b0_0
   - tk=8.6.10=hbc83047_0
