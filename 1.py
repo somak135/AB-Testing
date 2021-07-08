@@ -30,7 +30,7 @@ def calculate_expected_loss(control_simulation, treatment_simulation, treatment_
     return np.mean(all_loss_control), np.mean(all_loss_treatment)
 
 
-def reqd_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon, min_simulation_per_experiment = 300, sample_size_bound = 10000):
+def reqd_sample_size(prior_alpha1, prior_beta1, prior_alpha2, prior_beta2, control_cr, treatment_cr, epsilon, min_simulation_per_experiment = 300, sample_size_bound = 10000):
     number_of_control_win = 0
     number_of_treatment_win = 0
     sample_size = min_simulation_per_experiment
@@ -44,8 +44,8 @@ def reqd_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon,
         control_conversions += np.random.binomial(n = 20, p = control_cr, size = 1)
         treatment_conversions += np.random.binomial(n = 20, p = treatment_cr, size = 1)
 
-        control_posterior_simulation = np.random.beta(prior_alpha + control_conversions, prior_beta + sample_size - control_conversions, size=5000)
-        treatment_posterior_simulation = np.random.beta(prior_alpha + treatment_conversions, prior_beta + sample_size - treatment_conversions, size=5000)
+        control_posterior_simulation = np.random.beta(prior_alpha1 + control_conversions, prior_beta1 + sample_size - control_conversions, size=5000)
+        treatment_posterior_simulation = np.random.beta(prior_alpha2 + treatment_conversions, prior_beta2 + sample_size - treatment_conversions, size=5000)
         treatment_won = (treatment_posterior_simulation >= control_posterior_simulation).astype(int)
 
         expected_loss_control, expected_loss_treatment = calculate_expected_loss(control_posterior_simulation, treatment_posterior_simulation, treatment_won)
@@ -63,12 +63,12 @@ def reqd_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon,
 
 #reqd_sample_size(7, 15, 0.32, 0.368, 0.0015)
 
-def calculate_reqd_samplesize_distbn(n, prior_alpha, prior_beta, control_cr, treatment_cr, epsilon, power_list = [0.9], min_simulation_per_experiment=300, sample_size_bound=10000):
+def calculate_reqd_samplesize_distbn(n, prior_alpha1, prior_beta1, prior_alpha2, prior_beta2, control_cr, treatment_cr, epsilon, power_list = [0.9], min_simulation_per_experiment=300, sample_size_bound=10000):
     num_cores = multiprocessing.cpu_count()
     inputs = range(1, n)
 
     processed_list = []
-    processed_list = Parallel(n_jobs=num_cores)(delayed(reqd_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, epsilon, min_simulation_per_experiment, sample_size_bound) for i in inputs)
+    processed_list = Parallel(n_jobs=num_cores)(delayed(reqd_sample_size)(prior_alpha1, prior_beta1, prior_alpha2, prior_beta2, control_cr, treatment_cr, epsilon, min_simulation_per_experiment, sample_size_bound) for i in inputs)
 
     return np.quantile(processed_list, power_list, axis = 0)
 
@@ -76,7 +76,7 @@ def calculate_reqd_samplesize_distbn(n, prior_alpha, prior_beta, control_cr, tre
 
 
 
-print(calculate_reqd_samplesize_distbn(n = 10000, prior_alpha = 1000, prior_beta = 4000, control_cr = 0.2, treatment_cr = 0.21, epsilon = 0.0005, power_list = [0.8, 0.85, 0.9, 0.95, 0.98], min_simulation_per_experiment = 4200, sample_size_bound = 42000))
+print(calculate_reqd_samplesize_distbn(n = 5000, prior_alpha1 = 1000, prior_beta1 = 4000, prior_alpha2=1050, prior_beta2 = 3950, control_cr = 0.2, treatment_cr = 0.19, epsilon = 0.0005, power_list = [0.8, 0.85, 0.9, 0.95, 0.98], min_simulation_per_experiment = 4200, sample_size_bound = 42000))
 
 ## Working rule: Keep minimum simulation per experiment > (classical reqd sample size)/10
 ##               And, keep sample size bound = classical reqd sample size
