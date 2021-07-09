@@ -76,7 +76,7 @@ def calculate_reqd_samplesize_distbn(n, prior_alpha1, prior_beta1, prior_alpha2,
 
 
 
-print(calculate_reqd_samplesize_distbn(n = 5000, prior_alpha1 = 1000, prior_beta1 = 4000, prior_alpha2=1050, prior_beta2 = 3950, control_cr = 0.2, treatment_cr = 0.19, epsilon = 0.0005, power_list = [0.8, 0.85, 0.9, 0.95, 0.98], min_simulation_per_experiment = 4200, sample_size_bound = 42000))
+print(calculate_reqd_samplesize_distbn(n = 5000, prior_alpha1 = 1000, prior_beta1 = 4000, prior_alpha2=1050, prior_beta2 = 3950, control_cr = 0.2, treatment_cr = 0.21, epsilon = 0.0005, power_list = [0.8, 0.85, 0.9, 0.95, 0.98], min_simulation_per_experiment = 4200, sample_size_bound = 42000))
 
 ## Working rule: Keep minimum simulation per experiment > (classical reqd sample size)/10
 ##               And, keep sample size bound = classical reqd sample size
