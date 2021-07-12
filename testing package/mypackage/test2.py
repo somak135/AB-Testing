@@ -196,7 +196,7 @@ epsilon = widgets.BoundedFloatText(
 #eps_box = widgets.HBox([epsilon, eps_label])
 #mylink = widgets.jslink((epsilon, 'value'), (eps_label, 'value'))
 
-def threshold_display2(arr):
+def threshold_display_2(arr):
     if arr == 'Classical':
         printmd('**Enter Level of Significance for Classical calculation:**')
         display(level_of_sig)

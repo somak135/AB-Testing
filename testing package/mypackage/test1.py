@@ -247,7 +247,7 @@ def samplesize_calculate(progressbar, arr, control_cr, detectable_lift, power_li
                     print(f'Power {power_list[i]} : Required sample sizes for control : {np.ceil(classical_size[i])} \t test : {np.ceil(classical_size[i]*(1 - control_prop)/control_prop)}')
             if arr[0] == 'Bayesian':
                 progressbar.layout.visibility = 'visible'
-                bayesian_size = final_samplesize_multiple_power(progressbar, 1000, 1, 1, control_cr, control_cr+detectable_lift, epsilon, control_prop, power_numeric, min_simulation_control = classical_size[0]/10, sample_size_bound = classical_size[len(power_list)-1])
+                bayesian_size = final_samplesize_multiple_power(progressbar, 5000, 1, 1, control_cr, control_cr+detectable_lift, epsilon, control_prop, power_numeric, min_simulation_control = classical_size[0]/10, sample_size_bound = classical_size[len(power_list)-1])
                 printmd('**Required sample size by Bayesian method:**\n')
                 for i in range(len(bayesian_size)):
                     print(f'Power {power_list[i]} : Required sample size for control : {np.ceil(bayesian_size[i])} \t test : {np.ceil(bayesian_size[i]*(1 - control_prop)/control_prop)}')
@@ -256,7 +256,7 @@ def samplesize_calculate(progressbar, arr, control_cr, detectable_lift, power_li
             for i in range(len(classical_size)):
                 print(f'Power {power_list[i]} : Required sample size for control : {np.ceil(classical_size[i])} \t test : {np.ceil(classical_size[i]*(1 - control_prop)/control_prop)}')
             progressbar.layout.visibility = 'visible'
-            bayesian_size = final_samplesize_multiple_power(progressbar, 1000, 1, 1, control_cr, control_cr+detectable_lift, epsilon, control_prop, power_numeric, min_simulation_control = classical_size[0]/10, sample_size_bound = classical_size[len(power_list)-1])
+            bayesian_size = final_samplesize_multiple_power(progressbar, 5000, 1, 1, control_cr, control_cr+detectable_lift, epsilon, control_prop, power_numeric, min_simulation_control = classical_size[0]/10, sample_size_bound = classical_size[len(power_list)-1])
             printmd('**Required sample size by Bayesian method:**\n')
             for i in range(len(bayesian_size)):
                 print(f'Power {power_list[i]} : Required sample size for control : {np.ceil(bayesian_size[i])} \t test : {np.ceil(bayesian_size[i]*(1 - control_prop)/control_prop)}')
