@@ -1,13 +1,23 @@
 # june-2021
 
-## Confounder Logistic Model
-`confounder.R` implements this. //needs to be updated yet
-
 ## Bayesian A/B Testing method
-`1.py` implements the numerical procedure of finding required sample size.
+*`testing package` folder contains the package and the two main .ipynb files.
+    + `design_AB_tes.ipynb` finds required sample size for a test.
+    + `conduct_AB_test.ipynb` conducts a AB test on an input data set.
+
+*`environment.yml` is the environment file with the necessary packages.
   
-`2.py` carries out simulation study to check the comparative performance of bayesian method and frequentist(aka classical) method. This was required mainly for the slides to get the comparison results.
+*`example_data.csv` is a simulated data set on which the test may be conducted. It has only two columns -- first column is for the variation and second column is the binary 0/1 observations. A data set has to be summarized in this format to run this program. Following is a preview.
 
-`3.py` plots the outcome of a single conducted test in bayesian method.
+| Variation | Observation |
+|:---------:|:-----------:|
+|  Control  |      0      |
+|  Control  |      0      |
+| Treatment |      1      |
+|  Control  |      1      |
+| Treatment |      1      |
+| Treatment |      0      |
 
-`4.py` is a brief code for generating some plots for the slides.
+*`text` folder contains resources.
+
+*`Initial codes` folder contains different .py and .ipynb files created during the entire development process and before summarizing it.

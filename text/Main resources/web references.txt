@@ -1,0 +1,8 @@
+1. Consulted the attached article and the subsequent articles in the series.
+
+https://towardsdatascience.com/bayesian-ab-testing-part-i-conversions-ac2635f878ec
+
+
+2. Consulted the following article(primarily) and other pages in the left pane of this webpage. This is created by VWO, who has created a Bayesian A/B testing software.
+
+https://help.vwo.com/hc/en-us/articles/360033471874-How-VWO-Calculates-a-Winning-Variation-

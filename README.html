@@ -169,16 +169,47 @@ pre code {
 
 <div id="june-2021" class="section level1">
 <h1>june-2021</h1>
-<div id="confounder-logistic-model" class="section level2">
-<h2>Confounder Logistic Model</h2>
-<p><code>confounder.R</code> implements this. //needs to be updated yet</p>
-</div>
 <div id="bayesian-ab-testing-method" class="section level2">
 <h2>Bayesian A/B Testing method</h2>
-<p><code>1.py</code> implements the numerical procedure of finding required sample size.</p>
-<p><code>2.py</code> carries out simulation study to check the comparative performance of bayesian method and frequentist(aka classical) method.</p>
-<p><code>3.py</code> plots the outcome of a single conducted test in bayesian method.</p>
-<p><code>4.py</code> is a brief code for generating some plots for the slides.</p>
+<p>*<code>testing package</code> folder contains the package and the two main .ipynb files. + <code>design_AB_tes.ipynb</code> finds required sample size for a test. + <code>conduct_AB_test.ipynb</code> conducts a AB test on an input data set.</p>
+<p>*<code>environment.yml</code> is the environment file with the necessary packages.</p>
+<p>*<code>example_data.csv</code> is a simulated data set on which the test may be conducted. It has only two columns – first column is for the variation and second column is the binary 0/1 observations. A data set has to be summarized in this format to run this program. Following is a preview.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Variation</th>
+<th align="center">Observation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Control</td>
+<td align="center">0</td>
+</tr>
+<tr class="even">
+<td align="center">Control</td>
+<td align="center">0</td>
+</tr>
+<tr class="odd">
+<td align="center">Treatment</td>
+<td align="center">1</td>
+</tr>
+<tr class="even">
+<td align="center">Control</td>
+<td align="center">1</td>
+</tr>
+<tr class="odd">
+<td align="center">Treatment</td>
+<td align="center">1</td>
+</tr>
+<tr class="even">
+<td align="center">Treatment</td>
+<td align="center">0</td>
+</tr>
+</tbody>
+</table>
+<p>*<code>text</code> folder contains resources.</p>
+<p>*<code>Initial codes</code> folder contains different .py and .ipynb files created during the entire development process and before summarizing it.</p>
 </div>
 </div>
 
