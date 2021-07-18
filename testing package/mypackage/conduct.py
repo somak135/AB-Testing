@@ -165,10 +165,10 @@ def do_bayesian_test(df, eps, name_list, baseline):
     variation2_won = (variation2_cr_samples >= variation1_cr_samples).astype(int)
     variation1_exp_loss, variation2_exp_loss = calculate_expected_loss(variation1_cr_samples, variation2_cr_samples, variation2_won)
     
-    if variation1_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss):
-        result = f'{variation1_name} is the winner. Expect a relative improvement of {variation1_exp_lift*100:.3f}% over {variation2_name}.'
-    elif variation2_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss):
-        result = f'{variation2_name} is the winner. Expect a relative improvement of {variation2_exp_lift*100:.3f}% over {variation1_name}.'
+    if variation1_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss) and variation2_exp_loss > (1-eps)*(variation1_exp_loss+variation2_exp_loss):
+        result = f'{variation1_name} has significantly higher conversion rate.'
+    elif variation2_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss) and variation1_exp_loss > (1-eps)*(variation1_exp_loss+variation2_exp_loss):
+        result = f'{variation2_name} has significantly higher conversion rate. Expect a relative improvement of {variation2_exp_lift*100:.3f}% over {variation1_name}.'
     else:
         result = f'The test is inconclusive.'
     
