@@ -158,7 +158,7 @@ def do_bayesian_test(df, eps, name_list, baseline):
     variation1_exp_lift_interval = np.quantile(variation1_lift, [0.025, 0.975], axis = 0)
     variation2_exp_lift_interval = np.quantile(variation2_lift, [0.025, 0.975], axis = 0)
     
-    report_table = tabulate([['Variation name', 'Avg. conversion', 'Prob. to beat baseline', 'Expected improvement over baseline', 'C.I. for improvement'],
+    report_table = tabulate([['Variation name', 'Avg. conversion', 'Prob. to beat baseline', 'Expected improvement over baseline', 'C.I. for improvement'], [None, None, None, None, None],
                    [f'{variation1_name}', f'{variation1_expected_cr*100:.3f}%', '(baseline)', '(baseline)', '(baseline)'],
                    [f'{variation2_name}', f'{variation2_expected_cr*100:.3f}%', f'{variation2_prob_beat*100:.3f}%', f'{variation2_exp_lift*100:.3f}%', f'[{variation2_exp_lift_interval[0]*100:.3f}%, {variation2_exp_lift_interval[1]*100:.3f}%]']])
     
