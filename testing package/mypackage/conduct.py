@@ -15,18 +15,45 @@ import io
 from scipy.special import btdtri
 from tabulate import tabulate
 
+"""
+printmd function prints Markdown text.
+
+Parameters:
+    string: A valid markdown text string which will be printed.
+    color: Color, default is red.
+"""
 def printmd(string, color='red'):
     colorstr = "<span style='color:{}'>{}</span>".format(color, string)
     display(Markdown(colorstr))
 
+########################################################
 
+
+"""
+upload_file function creates and displays a iPython widget clicking on which a .csv file can be uploaded.
+
+Returns:
+    uploader: Returns the widget.
+"""
 def upload_file():
     printmd('**Upload the .csv data file with control/treatment in first column and binary observations in second column:**')
     uploader = widgets.FileUpload(accept = '.csv', multiple = False)
     display(uploader)
-    return uploader   
+    return uploader
+
+#########################################################
+
+
+"""
+read_file function reads the file uploaded using upload_file iPython widget and converts it into a Pandas object.
+
+Parameters:
+    uploader: A nonempty iPython FileUpload widget used for .csv file
     
-    
+Returns:
+    df: The Pandas object created from the .csv file
+    name_list: A string array containing the first two distinct names in the first column of df
+"""
 def read_file(uploader):
     input_file = list(uploader.value.values())[0]
     content = input_file['content']
@@ -37,8 +64,25 @@ def read_file(uploader):
     name_list = [name1, name2]
     return df, name_list
 
-####### CLASSICAL 1 SIDED TEST ########
+###########################################################
 
+"""
+do_classical1_test function performs a one-sided A/B test to compare the means of two Bernouli datasets. In the end, plots the two means and corresponding 95% confidence intervals using plt.bar from matplotlib. Also the p-value is printed and depending on the level of significance the result of the test is printed. 
+Null hypothesis: p1 = p2 vs Alternative hypothesis: p1 < p2
+
+Parameters:
+    df: A dataset with two columns such that first column contains the name of corresponding group. e.g.:
+        Name     Observation
+        Control   0
+        Control   0
+        Control   1
+        Treatment 0
+        Control   1
+        Treatment 1
+    level_of_sig: The level of significance for the statistical test.
+    name_list: The name of the two groups whose mean are to be compared.
+    baseline: The name of the baseline group. Its mean is taken to be p1.    
+"""
 def do_classical1_test(df, level_of_sig, name_list, baseline):
     str1 = df.columns[0]  ## column name of variations
     str2 = df.columns[1]  ## column name of observations
@@ -67,10 +111,26 @@ def do_classical1_test(df, level_of_sig, name_list, baseline):
 
     if p_val > level_of_sig:
         printmd(f'**The test is inconclusive. P-value is {p_val: .4f}.**')
-    #return t_stat, p_val
-    
-####### CLASSICAL 2 SIDED TEST ########
 
+##############################################################
+
+"""
+do_classical2_test function performs a two-sided A/B test to compare the means of two Bernouli datasets. In the end, plots the two means and corresponding 95% confidence intervals using plt.bar from matplotlib. Also the p-value is printed and depending on the level of significance the result of the test is printed. 
+Null hypothesis: p1 = p2 vs Alternative hypothesis: p1 != p2 
+
+Parameters:
+    df: A dataset with two columns such that first column contains the name of corresponding group. e.g.:
+        Name     Observation
+        Control   0
+        Control   0
+        Control   1
+        Treatment 0
+        Control   1
+        Treatment 1
+    level_of_sig: The level of significance for the statistical test.
+    name_list: The name of the two groups whose mean are to be compared.
+    baseline: The name of the baseline group. Its mean is taken to be p1.    
+"""
 def do_classical2_test(df, level_of_sig, name_list, baseline):
     str1 = df.columns[0]  ## column name of variations
     str2 = df.columns[1]  ## column name of observations
@@ -102,25 +162,53 @@ def do_classical2_test(df, level_of_sig, name_list, baseline):
         
     if p_val > level_of_sig:
         printmd(f'**The test is inconclusive. P-value is {p_val: .4f}.**')
-    #return t_stat, p_val
 
-############### BAYESIAN TEST #################
+####################################################################
 
-def calculate_expected_loss(control_simulation, treatment_simulation, treatment_won, min_difference_delta=0):
+"""
+calculate_expected_loss function takes two arrays and computes mean(max(array1 - array2, 0)) and mean(max(array2 - array1, 0)).
+
+Parameters:
+    control_simulation: First input array, considered array1.
+    treatment_simulation: Second input array, considered array2.
+    treatment_won: This is the logical array (treatment_simulation > control_simulation) converted to a 0-1 numpy array.
+    
+Returns:
+    np.mean(all_loss_control): This is mean(max(array2 - array1, 0))
+    np.mean(all_loss_treatment): This is mean(max(array1 - array2, 0))
+"""
+def calculate_expected_loss(control_simulation, treatment_simulation, treatment_won):
     control_simulation = np.array(control_simulation)
     treatment_simulation = np.array(treatment_simulation)
     
-    loss_control = (treatment_simulation - min_difference_delta) - control_simulation
-    loss_treatment = (control_simulation - min_difference_delta) - treatment_simulation
+    loss_control = (treatment_simulation) - control_simulation
+    loss_treatment = (control_simulation) - treatment_simulation
     
     all_loss_control = treatment_won * loss_control
     all_loss_treatment = (1 - treatment_won) * loss_treatment
     
     return np.mean(all_loss_control), np.mean(all_loss_treatment)
 
+######################################################################
 
+"""
+do_bayesian_test function performs a Bayesian A/B test. Test concludes when one variation has expected loss below a threshold and another variation have expected loss above a threshold. Finally returns useful metrics in a table and plots the posterior distributions with shaded 95% confidence intervals.
 
-def do_bayesian_test(df, eps, name_list, baseline):
+Parameters: 
+    df: A dataset with two columns such that first column contains the name of corresponding group. e.g.:
+        Name     Observation
+        Control   0
+        Control   0
+        Control   1
+        Treatment 0
+        Control   1
+        Treatment 1
+    eps: For test to conclude, winner need to have expected loss below eps, loser need to have expected loss above (1-eps)
+    exp_lift: Expected difference between the means of the two groups.
+    name_list: The name of the two groups.
+    baseline: The name of the baseline group. 
+"""
+def do_bayesian_test(df, eps, exp_lift, name_list, baseline):
     str1 = df.columns[0]
     str2 = df.columns[1]
     
@@ -149,29 +237,31 @@ def do_bayesian_test(df, eps, name_list, baseline):
     
     variation1_cr_samples = np.random.beta(1+variation1_conversions, 1+variation1_sample_size-variation1_conversions, size=1000000)
     variation2_cr_samples = np.random.beta(1+variation2_conversions, 1+variation2_sample_size-variation2_conversions, size=1000000)
-    variation1_prob_beat = (variation1_cr_samples >= variation2_cr_samples).astype(int).mean() ## to be reported
-    variation2_prob_beat = (variation2_cr_samples >= variation1_cr_samples).astype(int).mean() ##to be reported
+    #variation1_prob_beat = (variation1_cr_samples >= variation2_cr_samples).astype(int).mean() ## to be reported
+    #variation2_prob_beat = (variation2_cr_samples >= variation1_cr_samples).astype(int).mean() ##to be reported
     variation1_lift = ((variation1_cr_samples - variation2_cr_samples)/variation2_cr_samples) 
     variation2_lift = ((variation2_cr_samples - variation1_cr_samples)/variation1_cr_samples) 
     variation1_exp_lift = variation1_lift.mean() ##to be reported
     variation2_exp_lift = variation2_lift.mean() ##to be reported
     variation1_exp_lift_interval = np.quantile(variation1_lift, [0.025, 0.975], axis = 0)
     variation2_exp_lift_interval = np.quantile(variation2_lift, [0.025, 0.975], axis = 0)
-    
-    report_table = tabulate([['Variation name', 'Avg. conversion', 'Prob. to beat baseline', 'Expected improvement over baseline', 'C.I. for improvement'], [None, None, None, None, None],
-                   [f'{variation1_name}', f'{variation1_expected_cr*100:.3f}%', '(baseline)', '(baseline)', '(baseline)'],
-                   [f'{variation2_name}', f'{variation2_expected_cr*100:.3f}%', f'{variation2_prob_beat*100:.3f}%', f'{variation2_exp_lift*100:.3f}%', f'[{variation2_exp_lift_interval[0]*100:.3f}%, {variation2_exp_lift_interval[1]*100:.3f}%]']])
-    
     variation2_won = (variation2_cr_samples >= variation1_cr_samples).astype(int)
     variation1_exp_loss, variation2_exp_loss = calculate_expected_loss(variation1_cr_samples, variation2_cr_samples, variation2_won)
     
-    if variation1_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss) and variation2_exp_loss > (1-eps)*(variation1_exp_loss+variation2_exp_loss):
+    report_table = tabulate([['Variation', 'Avg. conversion', 'Avg. loss w.r.t. baseline(relative)', 'Expected improvement(relative)', 'C.I. for improvement'], [None, None, None, None, None],
+                   [f'{variation1_name}', f'{variation1_expected_cr*100:.3f}%', '(baseline)', '(baseline)', '(baseline)'],
+                   [f'{variation2_name}', f'{variation2_expected_cr*100:.3f}%', f'{variation2_exp_loss/variation1_exp_loss*100:.3f}%', f'{variation2_exp_lift*100:.3f}%', f'[{variation2_exp_lift_interval[0]*100:.3f}%, {variation2_exp_lift_interval[1]*100:.3f}%]']], numalign = "right", stralign = "center")
+    
+    
+    ### conclusion criterions
+    if variation1_exp_loss < eps*(exp_lift) and variation1_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss) and variation2_exp_loss > (1-eps)*(variation1_exp_loss+variation2_exp_loss):
         result = f'{variation1_name} has significantly higher conversion rate.'
-    elif variation2_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss) and variation1_exp_loss > (1-eps)*(variation1_exp_loss+variation2_exp_loss):
+    elif variation2_exp_loss < eps*(exp_lift) and variation2_exp_loss < eps*(variation1_exp_loss+variation2_exp_loss) and variation1_exp_loss > (1-eps)*(variation1_exp_loss+variation2_exp_loss):
         result = f'{variation2_name} has significantly higher conversion rate. Expect a relative improvement of {variation2_exp_lift*100:.3f}% over {variation1_name}.'
     else:
         result = f'The test is inconclusive.'
     
+    printmd(f'**Avg. loss w.r.t. baseline(relative)**: When the reported value of this metric is k%, if you risk losing 100 units by sticking to baseline, you would risk losing k units by implementing {variation2_name}.', color = 'black')
     print(report_table)
     printmd(f'**{result}**', color = 'black')
     
@@ -194,10 +284,10 @@ def do_bayesian_test(df, eps, name_list, baseline):
     plt.title('Conversion rates with shaded 95% credible intervals')
 
     
-###### WIDGETS AND DISPLAY FUNCTIONS ########
+################ WIDGETS AND DISPLAY FUNCTIONS ####################
 
 style = {'description_width': 'initial'}
-def do_test(df, level_of_sig, epsilon, name_list, baseline, string):
+def do_test(df, level_of_sig, epsilon, expected_lift, name_list, baseline, string):
     level_of_sig = int(level_of_sig[:-1])/100
     epsilon = int(epsilon[:-1])/100
     
@@ -208,7 +298,7 @@ def do_test(df, level_of_sig, epsilon, name_list, baseline, string):
         do_classical2_test(df, level_of_sig, name_list, baseline)
         
     if string == 'Bayesian':
-        do_bayesian_test(df, epsilon, name_list, baseline)
+        do_bayesian_test(df, epsilon, expected_lift, name_list, baseline)
     
 method_choice = widgets.Select(
                 options = ['Classical(One sided)', 'Classical(Two sided)', 'Bayesian'],
@@ -255,6 +345,17 @@ ask_baseline = widgets.Select(
         style = style
 )
 
+expected_lift = widgets.BoundedFloatText(
+                value = 0.05,
+                min = 0,
+                step = 0.005,
+                max = 1,
+                description = f'<b>Expected lift (Absolute)</b>',
+                readout_format = '.4f',
+                disabled = False,
+                style = style
+)
+
 def display_ask_baseline_widget(widget, name_list):
     widget.options = name_list
     widget.value = name_list[0]
@@ -268,5 +369,5 @@ def threshold_display(arr):
             
     if arr == 'Bayesian':
         printmd('**Enter expected loss threshold:**')
-        printmd('A Bayesian test concludes when (Expected loss of one variant)/(Sum of expected losses of the two variants) is less than the **Expected loss threshold**. Lower the value of the threshold, more is the confidence in declaring a winner. The convension is to set a very low value for this threshold and the default is 5%.', color = 'black')
-        display(epsilon)
+        printmd('A Bayesian test concludes when (Expected loss of one variant)/(Expected lift) is less than the **Expected loss threshold**. Lower the value of the threshold, more is the confidence in declaring a winner. The convension is to set a very low value for this threshold and the default is 5%.', color = 'black')
+        display(epsilon); display(expected_lift)

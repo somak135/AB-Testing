@@ -12,12 +12,100 @@ decimal.getcontext().prec = 4
 import multiprocessing
 from joblib import Parallel, delayed
 
+"""
+printmd function prints Markdown text.
+
+Parameters:
+    string: A valid markdown text string which will be printed.
+    color: Color, default is red.
+"""
 def printmd(string, color='red'):
     colorstr = "<span style='color:{}'>{}</span>".format(color, string)
     display(Markdown(colorstr))
 
 
-############## BAYESIAN PROCESS ##################
+#################################################
+
+"""
+classical_1_samplesize_multiple_power function calculates required sample size for a one-sided A/B test.
+Null hypothesis: p1 = p2 vs Alternative hypothesis: p1 < p2
+
+Parameters:
+    control_cr: The control/baseline converion rate, considered p1
+    treatment_cr: The expected treatment conversion rate (baseline conversion rate + nonzero expected lift), considered p2
+    control_group: The proportion of control/baseline samples in the entire sample (float between 0 to 1, exclusive)
+    level_of_sig: Level of significance for the test
+    power_list: A float array containing required power(s) for the test
+    
+Returns:
+    sample_size: Required sample size for the control/baseline group
+"""
+def classical_1_samplesize_multiple_power(control_cr, treatment_cr, control_group, level_of_sig, power_list):
+    p1 = control_cr
+    p2 = treatment_cr
+    q1 = 1 - p1
+    q2 = 1 - p2
+    delta = abs(p2 - p1)
+    k = (1 - control_group)/control_group
+    pbar = (p1 + k*p2)/(1 + k)
+    qbar = 1 - pbar
+    
+    term1 = np.sqrt(pbar * qbar * (1+1/k)) * norm.ppf(1 - level_of_sig)  ##########
+    sample_size = []
+    for i in range(len(power_list)):
+        term2 = np.sqrt(p1 * q1 + p2 * q2/k) * norm.ppf(power_list[i])
+        sample_size.append(((term1 + term2)**2)/(delta**2))
+    
+    return sample_size
+
+###################################################
+
+"""
+classical_2_samplesize_multiple_power function calculates required sample size for a two-sided A/B test.
+Null hypothesis: p1 = p2 vs Alternative hypothesis: p1 != p2
+
+Parameters:
+    control_cr: The control/baseline converion rate, considered p1
+    treatment_cr: The expected treatment conversion rate (baseline conversion rate + nonzero expected lift), considered p2
+    control_group: The proportion of control/baseline samples in the entire sample (float between 0 to 1, exclusive)
+    level_of_sig: Level of significance for the test
+    power_list: A float array containing required power(s) for the test
+    
+Returns:
+    sample_size: Required sample size for the control/baseline group
+"""
+def classical_2_samplesize_multiple_power(control_cr, treatment_cr, control_group, level_of_sig, power_list):
+    p1 = control_cr
+    p2 = treatment_cr
+    q1 = 1 - p1
+    q2 = 1 - p2
+    delta = abs(p2 - p1)
+    k = (1 - control_group)/control_group
+    pbar = (p1 + k*p2)/(1 + k)
+    qbar = 1 - pbar
+    
+    term1 = np.sqrt(pbar * qbar * (1+1/k)) * norm.ppf(1 - level_of_sig/2)
+    sample_size = []
+    for i in range(len(power_list)):
+        term2 = np.sqrt(p1 * q1 + p2 * q2/k) * norm.ppf(power_list[i])
+        sample_size.append(((term1 + term2)**2)/(delta**2))
+    
+    return sample_size
+    
+#####################################################
+
+"""
+calculate_expected_loss function takes two arrays and computes mean(max(array1 - array2, 0)) and mean(max(array2 - array1, 0)).
+
+Parameters:
+    control_simulation: First input array, considered array1.
+    treatment_simulation: Second input array, considered array2.
+    treatment_won: This is the logical array (treatment_simulation > control_simulation) converted to a 0-1 numpy array.
+    
+Returns:
+    np.mean(all_loss_control): This is mean(max(array2 - array1, 0))
+    np.mean(all_loss_treatment): This is mean(max(array1 - array2, 0))
+"""
 def calculate_expected_loss(control_simulation, treatment_simulation, treatment_won, min_difference_delta=0):
     control_simulation = np.array(control_simulation)
     treatment_simulation = np.array(treatment_simulation)
@@ -30,7 +118,24 @@ def calculate_expected_loss(control_simulation, treatment_simulation, treatment_
     
     return np.mean(all_loss_control), np.mean(all_loss_treatment)
 
+###########################################################
 
+"""
+bayesian_sample_size function iteratively simulates two datasets -- one with conversion rate control_cr and another with treatment_cr until Bayesian A/B test can declare treatment to be significantly better than control/baseline.
+
+Parameters:
+    prior_alpha: First shape parameter for prior distributions of the conversion rates
+    prior_beta: Second shape paramter for prior distributions of the conversion rates
+    control_cr: The control/baseline converion rate
+    treatment_cr: The expected treatment conversion rate (baseline conversion rate + nonzero expected lift)
+    treatment_threshold: A float value between 0 and 1 which works as threshold for the Bayesian test to conclude (lower the value, more precise is the test)
+    control_prop: The proportion of control/baseline samples in the entire sample (float between 0 to 1, exclusive)
+    min_simulation_control: The minimum size of simulated sample for the control/baseline that must be present for concluding the test (to avoid small sample biases)
+    sample_size_bound_control: The maximum size of simulated sample for the control/baseline that will be prsent for concluding the test
+    
+Returns:
+    sample_size_required: The required sample size to conclude the Bayesian test
+"""
 def bayesian_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control):
     number_of_control_win = 0
     number_of_treatment_win = 0
@@ -53,15 +158,34 @@ def bayesian_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, trea
         
         expected_loss_control, expected_loss_treatment = calculate_expected_loss(control_posterior_simulation, treatment_posterior_simulation, treatment_won)
         
-        if expected_loss_treatment <= treatment_threshold*(expected_loss_control+expected_loss_treatment):
+        if expected_loss_treatment < treatment_threshold*(treatment_cr - control_cr) and expected_loss_treatment <= treatment_threshold*(expected_loss_control+expected_loss_treatment):
             number_of_treatment_win += 1
             flag = 1
         elif sample_size_control >= sample_size_bound_control:
             flag = 1
-            
-    return max(sample_size_control, round(sample_size_treatment*control_prop/(1 - control_prop)))
+    
+    sample_size_required = max(sample_size_control, round(sample_size_treatment*control_prop/(1 - control_prop)))
+    return sample_size_required
 
+##############################################################
 
+"""
+calculate_bayesian_samplesize_control_distbn function calls the bayesian_sample_size function n times. The n returned values are stored in an array which gives the empirical distribution of the required sample size for control/baseline group.
+
+Parameters:
+    n: The number of times bayesian_sample_size function is called. Higher the number, more precise is the empirical distribution.
+    prior_alpha: First shape parameter for prior distributions of the conversion rates
+    prior_beta: Second shape paramter for prior distributions of the conversion rates
+    control_cr: The control/baseline converion rate
+    treatment_cr: The expected treatment conversion rate (baseline conversion rate + nonzero expected lift)
+    treatment_threshold: A float value between 0 and 1 which works as threshold for the Bayesian test to conclude (lower the value, more precise is the test)
+    control_prop: The proportion of control/baseline samples in the entire sample (float between 0 to 1, exclusive)
+    min_simulation_control: The minimum size of simulated sample for the control/baseline that must be present for concluding the test (to avoid small sample biases)
+    sample_size_bound_control: The maximum size of simulated sample for the control/baseline that will be prsent for concluding the test
+    
+Returns:
+    processed_list: The array of length n containing the sample size requirements of n many Bayesian A/B tests with the specified parameters.
+"""
 def calculate_bayesian_samplesize_control_distbn(n, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control):
     num_cores = multiprocessing.cpu_count()
     inputs = range(1, n)
@@ -70,6 +194,27 @@ def calculate_bayesian_samplesize_control_distbn(n, prior_alpha, prior_beta, con
     processed_list = Parallel(n_jobs=num_cores)(delayed(bayesian_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control) for i in inputs)
     return processed_list
 
+#################################################################
+
+"""
+bayesian_samplesize_multiple_power function calls the calculate_bayesian_samplesize_control_distbn function and creates the array of length n and returns specified quantile of the array. It also enables displaying a iPywidget progressbar. 
+
+Parameters:
+    progressbar: This is a iPywidget IntProgress bar.
+    n: The number of times bayesian_sample_size function is called. Higher the number, more precise is the empirical distribution.
+    prior_alpha: First shape parameter for prior distributions of the conversion rates
+    prior_beta: Second shape paramter for prior distributions of the conversion rates
+    control_cr: The control/baseline converion rate
+    treatment_cr: The expected treatment conversion rate (baseline conversion rate + nonzero expected lift)
+    treatment_threshold: A float value between 0 and 1 which works as threshold for the Bayesian test to conclude (lower the value, more precise is the test)
+    control_prop: The proportion of control/baseline samples in the entire sample (float between 0 to 1, exclusive)
+    power_list: A float array containing required power(s) for the test
+    min_simulation_control: The minimum size of simulated sample for the control/baseline that must be present for concluding the test (to avoid small sample biases)
+    sample_size_bound_control: The maximum size of simulated sample for the control/baseline that will be prsent for concluding the test
+    
+Returns:
+    sample_size_design: Required sample size for the control/baseline group (with specified power(s))
+"""
 def bayesian_samplesize_multiple_power(progressbar, n, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, power_list, min_simulation_control, sample_size_bound):
     progressbar.value = 0
     display(progressbar)
@@ -82,47 +227,8 @@ def bayesian_samplesize_multiple_power(progressbar, n, prior_alpha, prior_beta, 
         progressbar.value += 1
         
     progressbar.layout.visibility = 'hidden'
-    return np.quantile(complete_list, power_list, axis = 0)
-
-
-############## CLASSICAL PROCESS 1 - sided ######################
-
-def classical_1_samplesize_multiple_power(control_cr, treatment_cr, control_group, level_of_sig, power_list):
-    p1 = control_cr
-    p2 = treatment_cr
-    q1 = 1 - p1
-    q2 = 1 - p2
-    delta = abs(p2 - p1)
-    k = (1 - control_group)/control_group
-    pbar = (p1 + k*p2)/(1 + k)
-    qbar = 1 - pbar
-    
-    term1 = np.sqrt(pbar * qbar * (1+1/k)) * norm.ppf(1 - level_of_sig)  ##########
-    sample_size = []
-    for i in range(len(power_list)):
-        term2 = np.sqrt(p1 * q1 + p2 * q2/k) * norm.ppf(power_list[i])
-        sample_size.append(((term1 + term2)**2)/(delta**2))
-    
-    return sample_size
-
-############## CLASSICAL PROCESS 2 - sided ######################
-def classical_2_samplesize_multiple_power(control_cr, treatment_cr, control_group, level_of_sig, power_list):
-    p1 = control_cr
-    p2 = treatment_cr
-    q1 = 1 - p1
-    q2 = 1 - p2
-    delta = abs(p2 - p1)
-    k = (1 - control_group)/control_group
-    pbar = (p1 + k*p2)/(1 + k)
-    qbar = 1 - pbar
-    
-    term1 = np.sqrt(pbar * qbar * (1+1/k)) * norm.ppf(1 - level_of_sig/2)  ##########
-    sample_size = []
-    for i in range(len(power_list)):
-        term2 = np.sqrt(p1 * q1 + p2 * q2/k) * norm.ppf(power_list[i])
-        sample_size.append(((term1 + term2)**2)/(delta**2))
-    
-    return sample_size
+    sample_size_design = np.quantile(complete_list, power_list, axis = 0)
+    return sample_size_design
 
 ################ WIDGETS AND DISPLAY FUNCTIONS ####################
 
@@ -258,7 +364,7 @@ def samplesize_calculate(progressbar, arr, control_cr, expected_lift, power_list
         
         if 'Bayesian' in arr:
             progressbar.layout.visibility = 'visible'
-            bayesian_size = bayesian_samplesize_multiple_power(progressbar, 5000, 1, 1, control_cr, control_cr+expected_lift, epsilon, control_prop, power_numeric, classical_size[0]/10, classical_size[len(power_list)-1])
+            bayesian_size = bayesian_samplesize_multiple_power(progressbar, 10000, 1, 1, control_cr, control_cr+expected_lift, epsilon, control_prop, power_numeric, ref_size[0]/10, 1.2*ref_size[len(ref_size)-1])
             printmd('**Required sample size for Bayesian test:**\n')
             for i in range(len(bayesian_size)):
                 print(f'Power {power_list[i]} : Required sample sizes for control group: {np.ceil(bayesian_size[i])} \t test group: {np.ceil(bayesian_size[i]*(1 - control_prop)/control_prop)}')
