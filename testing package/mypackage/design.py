@@ -199,7 +199,7 @@ Returns:
     inputs = range(1, n)
     
     processed_list = []
-    processed_list = Parallel(n_jobs=num_cores)(delayed(bayesian_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, (135+seed+i)) for i in inputs)
+    processed_list = Parallel(n_jobs=num_cores)(delayed(bayesian_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, (135+seed+i)) for i in inputs) ### 135 here is a random value and may be changed which will change the seed
     return processed_list
 
 #################################################################
@@ -392,7 +392,7 @@ def samplesize_calculate(progressbar, arr, control_cr, expected_lift, power_list
         
         if 'Bayesian' in arr:
             progressbar.layout.visibility = 'visible'
-            bayesian_size = bayesian_samplesize_multiple_power(progressbar, 2000, 1, 1, control_cr, control_cr+expected_lift, epsilon, control_prop, power_numeric, ref_size[0]/10, 1.2*ref_size[len(ref_size)-1]) ### Calculate sample size for Bayesian test 
+            bayesian_size = bayesian_samplesize_multiple_power(progressbar, 10000, 1, 1, control_cr, control_cr+expected_lift, epsilon, control_prop, power_numeric, ref_size[0]/10, 1.2*ref_size[len(ref_size)-1]) ### Calculate sample size for Bayesian test 
             printmd('**Required sample size for Bayesian test:**\n')
             for i in range(len(bayesian_size)):
                 print(f'Power {power_list[i]} : Required sample sizes for control group: {np.ceil(bayesian_size[i])} \t test group: {np.ceil(bayesian_size[i]*(1 - control_prop)/control_prop)}') ### printed
