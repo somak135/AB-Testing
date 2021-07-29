@@ -24,7 +24,7 @@
 
 
 
-* `text` folder contains resources.
+* `text & images` folder contains resources and images.
 
 
 
@@ -47,8 +47,8 @@
   
 3. Activate the newly created environment if not done already. Fire up Jupyter notebook. Now we shall learn how to run the `conduct_AB_test.ipynb` notebook.
   + Run cell 1 blindly.
-  + Run cell 2. It would give the button to upload .csv file containing the data set. The format of this .csv file is described above. The `example_data.csv` in the parent folder is an example file you may use to test the tool. Every time you need to change the file, please rerun this cell.
-  + Run cell 3. Here you would need to specify the name of your baseline variant and your preferred method to carry out a test.
+  + Run cell 2. It would give the button to upload .csv file containing the data set. The format of this .csv file is described above. The `example_data.csv` in the parent folder is an example file you may use to test the tool. Every time you need to change the file, please rerun from this cell upto the end.
+  + Run cell 3. Here you would need to specify the name of your baseline variant and your preferred method to carry out a test. Each time you need to change some setting, rerun from this cell upto the end.
   + Run cell 4. If your preferred method was classical, you would need to specify the level of significance(default 5%) of the test by adjusting the slider. If your preferred method was Bayesian, you would need to mention the expected loss threshold(default 5%) and expected lift(absolute).
   + Run cell 5. The verdict and the plots with required metrics will be displayed. Following are the results by running a Classical(Two sided) test and a Bayesian test respectively with the `example_data.csv` file.
   
