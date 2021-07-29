@@ -241,14 +241,14 @@ Parameters:
     
     variation2_lift = ((variation2_cr_samples - variation1_cr_samples)/variation1_cr_samples)
     variation2_exp_lift = variation2_lift.mean() ##to be reported as the expected improvement
-    variation2_exp_lift_interval = np.quantile(variation2_lift, [0.025, 0.975], axis = 0) ##to be reported as the Improvement C.I.
+    
     variation2_won = (variation2_cr_samples >= variation1_cr_samples).astype(int)
     variation1_exp_loss, variation2_exp_loss = calculate_expected_loss(variation1_cr_samples, variation2_cr_samples, variation2_won) ### Calling the calculate_expected_loss function to find the variation 1 and variation 2 expected losses
     
     ### Create the table which will be displayed to user
-    report_table = tabulate([['Variation', 'Avg. conversion', 'Avg. loss w.r.t. baseline(relative)', 'Expected improvement(relative)', 'Improvement C.I.'], [None, None, None, None, None],
-                   [f'{variation1_name}', f'{variation1_expected_cr*100:.3f}%', '(baseline)', '(baseline)', '(baseline)'],
-                   [f'{variation2_name}', f'{variation2_expected_cr*100:.3f}%', f'{variation2_exp_loss/variation1_exp_loss*100:.3f}%', f'{variation2_exp_lift*100:.3f}%', f'[{variation2_exp_lift_interval[0]*100:.3f}%, {variation2_exp_lift_interval[1]*100:.3f}%]']], numalign = "right", stralign = "center")
+    report_table = tabulate([['Variation', 'Avg. conversion', 'Avg. loss w.r.t. baseline(relative)', 'Expected improvement(relative)'], [None, None, None, None],
+                   [f'{variation1_name}', f'{variation1_expected_cr*100:.3f}%', '(baseline)', '(baseline)'],
+                   [f'{variation2_name}', f'{variation2_expected_cr*100:.3f}%', f'{variation2_exp_loss/variation1_exp_loss*100:.3f}%', f'{variation2_exp_lift*100:.3f}%']], numalign = "right", stralign = "center")
     
     
     ### conclusion criterions for a Bayesian A/B test
