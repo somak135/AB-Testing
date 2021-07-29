@@ -14,6 +14,7 @@ from joblib import Parallel, delayed
 import io
 from scipy.special import btdtri
 from tabulate import tabulate
+import random
 
 
 def printmd(string, color='red'):
@@ -233,7 +234,6 @@ Parameters:
     variation1_cr_uci = btdtri(1+variation1_conversions, 1+variation1_sample_size - variation1_conversions, 0.975) ### Higher end of a 95% confidence interval of variation 1 conversion rate
     variation2_cr_lci = btdtri(1+variation2_conversions, 1+variation2_sample_size - variation2_conversions, 0.025) ### Lower end of a 95% confidence interval of variation 2 conversion rate
     variation2_cr_uci = btdtri(1+variation2_conversions, 1+variation2_sample_size - variation2_conversions, 0.975) ### Higher end of a 95% confidence interval of variation 2 conversion rate
-    
     
     
     variation1_cr_samples = np.random.beta(1+variation1_conversions, 1+variation1_sample_size-variation1_conversions, size=1000000) ### Monte carlo simulation of size 10^6 from obtained posterior distribution of variation 1 conversion rate
