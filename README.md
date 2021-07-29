@@ -36,4 +36,11 @@
 1. Download the `AB_testing_env.yml` file and create a virtual Python3 environment using the .yml environment file.
 
 2. Activate the newly created environment and open Jupyter notebook. We first talk about how to run the `design_AB_test.ipynb` notebook.
-  + 
+  + Blindly run cell 1.
+  + Run cell 2. After running cell 2, a few iPython widgets will be displayed. The required inputs go in here. The _Power/Conclusive probability_ widget and _Method_ supports multiple selection by using ctrl+click or command+click(mac).
+  + Run cell 3. A slider widget is shown to specify level of significance and/or expected loss threshold. The preset values are default.
+  + Run cell 4. It would show the result. If Bayesian was selected in _Method_ in cell 2, it will take some time to display the result. Following are the examples of cell 4 when the program is running and after it has run.
+  
+  ![alt text](https://github.com/somak135/AB-Testing/blob/main/text%20%26%20images/design_running.jpeg)
+  
+  ![alt text](https://github.com/somak135/AB-Testing/blob/main/text%20%26%20images/design_complete.jpeg)
