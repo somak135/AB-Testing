@@ -121,7 +121,7 @@ Returns:
 
 ###########################################################
 
-def bayesian_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control):
+def bayesian_sample_size(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, seed):
     """
 bayesian_sample_size function iteratively simulates two datasets -- one with conversion rate control_cr and another with treatment_cr until Bayesian A/B test can declare treatment to be significantly better than control/baseline.
 
@@ -134,6 +134,7 @@ Parameters:
     control_prop: The proportion of control/baseline samples in the entire sample (float between 0 to 1, exclusive)
     min_simulation_control: The minimum size of simulated sample for the control/baseline that must be present for concluding the test (to avoid small sample biases)
     sample_size_bound_control: The maximum size of simulated sample for the control/baseline that will be prsent for concluding the test
+    seed: seed for simulation
     
 Returns:
     sample_size_required: The required sample size to conclude the Bayesian test
@@ -143,12 +144,14 @@ Returns:
     flag = 0
     
     ### First step: set starting sample sizes and generate dataset
+    np.random.seed(seed)
     sample_size_control = min_simulation_control ### First set control/baseline sample size to min_simulation_control
     sample_size_treatment = np.ceil(min_simulation_control * (1 - control_prop)/control_prop).astype(int) ### Set the treatment sample size accordingly scaled
     control_conversions = np.random.binomial(n = sample_size_control, p = control_cr, size = 1) ### Generate control/baseline samples of size sample_size_control
     treatment_conversions = np.random.binomial(n = sample_size_treatment, p = treatment_cr, size = 1) ### Generate treatment samples of size sample_size_treatment
     
     ### Second step: Iteratively generate dataset until experiment concludes
+    
     while flag == 0:
         sample_size_control += 50 ### Increase control/baseline sample size by batchsize of 50
         sample_size_treatment += round(50 * (1 - control_prop)/control_prop) ### Increase treatment sample size by scaling accordingly
@@ -173,7 +176,7 @@ Returns:
 
 ##############################################################
 
-def calculate_bayesian_samplesize_control_distbn(n, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control):
+def calculate_bayesian_samplesize_control_distbn(n, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, seed):
     """
 calculate_bayesian_samplesize_control_distbn function calls the bayesian_sample_size function n times. The n returned values are stored in an array which gives the empirical distribution of the required sample size for control/baseline group.
 
@@ -187,6 +190,7 @@ Parameters:
     control_prop: The proportion of control/baseline samples in the entire sample (float between 0 to 1, exclusive)
     min_simulation_control: The minimum size of simulated sample for the control/baseline that must be present for concluding the test (to avoid small sample biases)
     sample_size_bound_control: The maximum size of simulated sample for the control/baseline that will be prsent for concluding the test
+    seed: seed for simulation
     
 Returns:
     processed_list: The array of length n containing the sample size requirements of n many Bayesian A/B tests with the specified parameters.
@@ -195,12 +199,12 @@ Returns:
     inputs = range(1, n)
     
     processed_list = []
-    processed_list = Parallel(n_jobs=num_cores)(delayed(bayesian_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control) for i in inputs)
+    processed_list = Parallel(n_jobs=num_cores)(delayed(bayesian_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, (135+seed+i)) for i in inputs)
     return processed_list
 
 #################################################################
 
-def bayesian_samplesize_multiple_power(progressbar, n, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, power_list, min_simulation_control, sample_size_bound):
+def bayesian_samplesize_multiple_power(progressbar, n, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, power_list, min_simulation_control, sample_size_bound_control):
     """
 bayesian_samplesize_multiple_power function calls the calculate_bayesian_samplesize_control_distbn function and creates the array of length n and returns specified quantile of the array. It also enables displaying a iPywidget progressbar. 
 
@@ -226,7 +230,7 @@ Returns:
     k = np.ceil(n/10).astype(int) + 1 ###Determining size of each part
     complete_list = np.array([])
     for i in range(N):
-        list1 = calculate_bayesian_samplesize_control_distbn(k, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound)
+        list1 = calculate_bayesian_samplesize_control_distbn(k, prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, (k*i))
         complete_list = np.append(complete_list, list1) ### Append result of each part into complete_list
         progressbar.value += 1 ### Display progress in progressbar
         
@@ -388,7 +392,7 @@ def samplesize_calculate(progressbar, arr, control_cr, expected_lift, power_list
         
         if 'Bayesian' in arr:
             progressbar.layout.visibility = 'visible'
-            bayesian_size = bayesian_samplesize_multiple_power(progressbar, 10000, 1, 1, control_cr, control_cr+expected_lift, epsilon, control_prop, power_numeric, ref_size[0]/10, 1.2*ref_size[len(ref_size)-1]) ### Calculate sample size for Bayesian test 
+            bayesian_size = bayesian_samplesize_multiple_power(progressbar, 2000, 1, 1, control_cr, control_cr+expected_lift, epsilon, control_prop, power_numeric, ref_size[0]/10, 1.2*ref_size[len(ref_size)-1]) ### Calculate sample size for Bayesian test 
             printmd('**Required sample size for Bayesian test:**\n')
             for i in range(len(bayesian_size)):
                 print(f'Power {power_list[i]} : Required sample sizes for control group: {np.ceil(bayesian_size[i])} \t test group: {np.ceil(bayesian_size[i]*(1 - control_prop)/control_prop)}') ### printed
