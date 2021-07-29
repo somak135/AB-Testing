@@ -2,12 +2,12 @@
 
 ## A/B Testing method
 * `testing package` folder contains the package and the two main .ipynb files.
-    + `design_AB_tes.ipynb` finds required sample size for a test.
+    + `design_AB_test.ipynb` finds required sample size for a test.
     + `conduct_AB_test.ipynb` conducts a AB test on an input data set.
 
 
 
-* `environment.yml` is the environment file with the necessary packages.
+* `AB_testing_env.yml` is the environment file with the necessary packages.
 
 
 
@@ -29,3 +29,11 @@
 
 
 * `Initial codes` folder contains different .py and .ipynb files created during the entire development process and before summarizing it.
+
+
+### Brief Steps to run the Notebooks
+
+1. Download the `AB_testing_env.yml` file and create a virtual Python3 environment using the .yml environment file.
+
+2. Activate the newly created environment and open Jupyter notebook. We first talk about how to run the `design_AB_test.ipynb` notebook.
+  + 
