@@ -248,7 +248,7 @@ def do_bayesian_test(df, eps, exp_lift, name_list, baseline):
     variation2_won = (variation2_cr_samples >= variation1_cr_samples).astype(int)
     variation1_exp_loss, variation2_exp_loss = calculate_expected_loss(variation1_cr_samples, variation2_cr_samples, variation2_won)
     
-    report_table = tabulate([['Variation', 'Avg. conversion', 'Avg. loss w.r.t. baseline(relative)', 'Expected improvement(relative)', 'C.I. for improvement'], [None, None, None, None, None],
+    report_table = tabulate([['Variation', 'Avg. conversion', 'Avg. loss w.r.t. baseline(relative)', 'Expected improvement(relative)', 'Improvement C.I.'], [None, None, None, None, None],
                    [f'{variation1_name}', f'{variation1_expected_cr*100:.3f}%', '(baseline)', '(baseline)', '(baseline)'],
                    [f'{variation2_name}', f'{variation2_expected_cr*100:.3f}%', f'{variation2_exp_loss/variation1_exp_loss*100:.3f}%', f'{variation2_exp_lift*100:.3f}%', f'[{variation2_exp_lift_interval[0]*100:.3f}%, {variation2_exp_lift_interval[1]*100:.3f}%]']], numalign = "right", stralign = "center")
     
