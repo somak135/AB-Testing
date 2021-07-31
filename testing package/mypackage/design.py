@@ -199,7 +199,7 @@ Returns:
     inputs = range(1, n)
     
     processed_list = []
-    processed_list = Parallel(n_jobs=num_cores)(delayed(bayesian_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, (135+seed+i)) for i in inputs) ### 135 here is a random value and may be changed which will change the seed
+    processed_list = Parallel(n_jobs=num_cores)(delayed(bayesian_sample_size)(prior_alpha, prior_beta, control_cr, treatment_cr, treatment_threshold, control_prop, min_simulation_control, sample_size_bound_control, (135+seed+i)) for i in inputs) ### 135 here is a random value and may be changed which will change the seed. It is suggested to change 135 in order of 10^4 to notice change in results.
     return processed_list
 
 #################################################################
